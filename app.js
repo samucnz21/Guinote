@@ -19,9 +19,9 @@ var con = mysql.createConnection({
 
 var turno = ['true','false'];
 
-app.get('/', function(req, res){
+/*app.get('/', function(req, res){
   res.sendFile(__dirname + '/prueba.html');
-});
+});*/
 
 app.use(session);
 io.use(sharedsession(session,{
