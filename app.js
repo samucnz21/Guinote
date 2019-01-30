@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 var sharedsession = require("express-socket.io-session");
 var server = require('http').Server(app);
-var io = require('socket.io')(server);
+var io = require('socket.io')(server,{origins:'*:*'});
 var session = require("express-session")({
   secret:"1234",
   resave:true,
