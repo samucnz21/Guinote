@@ -1,7 +1,10 @@
 var express = require('express');
+var cors = require('cors');
 var app = express();
+app.use(cors());
+app.use(express.static());
 var sharedsession = require("express-socket.io-session");
-var server = require('http').Server(app);
+var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var session = require("express-session")({
   secret:"1234",
