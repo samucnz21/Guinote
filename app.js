@@ -1,10 +1,7 @@
 var express = require('express');
-var cors = require('cors');
 var app = express();
-app.use(cors());
-app.use(express.static());
 var sharedsession = require("express-socket.io-session");
-var server = require('http').createServer(app);
+var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var session = require("express-session")({
   secret:"1234",
@@ -30,36 +27,6 @@ app.use(session);
 io.use(sharedsession(session,{
   autoSave:true
 }));
-
-io.set('origins', '*:*');
-
-app.use(function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', req.get('Origin') || '*');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
-  res.header('Access-Control-Expose-Headers', 'Content-Length');
-  res.header('Access-Control-Allow-Headers', 'Accept, Authorization, Content-Type, X-Requested-With, Range');
-  if (req.method === 'OPTIONS') {
-    return res.send(200);
-  } else {
-    return next();
-  }
-});
-
-app.use(function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', req.get('Origin') || '*');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
-  res.header('Access-Control-Expose-Headers', 'Content-Length');
-  res.header('Access-Control-Allow-Headers', 'Accept, Authorization, Content-Type, X-Requested-With, Range');
-  if (req.method === 'OPTIONS') {
-    return res.send(200);
-  } else {
-    return next();
-  }
-});
-
-io.origins('*:*');
 
 io.on('connection', function(socket)
 {
@@ -122,17 +89,22 @@ io.on('connection', function(socket)
 
     socket.on('comprobarUsuariosSala',function(data){
       socket.join(data);
-      var clients = io.sockets.adapter.rooms[data].length;
-    if(clients > 2)
-    {
-      socket.leave(data);
-      socket.emit("limiteUsuarios","true");
-    }
-    else
-    {
-      socket.emit("jugadorNumero",clients);
-      console.log("conectado a la sala"+data);
-    }
+      try
+      {
+        var clients = io.sockets.adapter.rooms[data].length;
+        if(clients > 2)
+        {
+          socket.leave(data);
+          socket.emit("limiteUsuarios","true");
+        }
+        else
+        {
+          socket.emit("jugadorNumero",clients);
+          console.log("conectado a la sala"+data);
+        }
+      }
+      catch(err)
+      {}
     });
 
     socket.on('repartircarta',function(data)
@@ -154,12 +126,17 @@ io.on('connection', function(socket)
     });
 
     socket.on('comprobarUsuariosListos',function(data){
-      var clients = io.sockets.adapter.rooms[data].length;
-      console.log(clients);
-    if(clients == 2)
-    {
-      io.in(data).emit("usuariosListos","true");
-    }
+      try
+      {
+        var clients = io.sockets.adapter.rooms[data].length;
+        console.log(clients);
+        if(clients == 2)
+        {
+          io.in(data).emit("usuariosListos","true");
+        }
+      }
+      catch(err)
+      {}
     });
 
     socket.on('moverCarta',function(data)
@@ -237,6 +214,6 @@ io.on('connection', function(socket)
 
 });
 
-server.listen(8080, function(){
+server.listen(8080,'0.0.0.0', function(){
   console.log('listening on *:8080');
 });
