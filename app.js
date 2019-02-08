@@ -89,17 +89,22 @@ io.on('connection', function(socket)
 
     socket.on('comprobarUsuariosSala',function(data){
       socket.join(data);
-      var clients = io.sockets.adapter.rooms[data].length;
-    if(clients > 2)
-    {
-      socket.leave(data);
-      socket.emit("limiteUsuarios","true");
-    }
-    else
-    {
-      socket.emit("jugadorNumero",clients);
-      console.log("conectado a la sala"+data);
-    }
+      try
+      {
+        var clients = io.sockets.adapter.rooms[data].length;
+        if(clients > 2)
+        {
+          socket.leave(data);
+          socket.emit("limiteUsuarios","true");
+        }
+        else
+        {
+          socket.emit("jugadorNumero",clients);
+          console.log("conectado a la sala"+data);
+        }
+      }
+      catch(err)
+      {}
     });
 
     socket.on('repartircarta',function(data)
@@ -121,12 +126,17 @@ io.on('connection', function(socket)
     });
 
     socket.on('comprobarUsuariosListos',function(data){
-      var clients = io.sockets.adapter.rooms[data].length;
-      console.log(clients);
-    if(clients == 2)
-    {
-      io.in(data).emit("usuariosListos","true");
-    }
+      try
+      {
+        var clients = io.sockets.adapter.rooms[data].length;
+        console.log(clients);
+        if(clients == 2)
+        {
+          io.in(data).emit("usuariosListos","true");
+        }
+      }
+      catch(err)
+      {}
     });
 
     socket.on('moverCarta',function(data)
@@ -204,6 +214,6 @@ io.on('connection', function(socket)
 
 });
 
-server.listen(8080, function(){
+server.listen(8080,'0.0.0.0', function(){
   console.log('listening on *:8080');
 });
