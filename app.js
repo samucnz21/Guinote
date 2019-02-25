@@ -214,6 +214,6 @@ io.on('connection', function(socket)
 
 });
 
-server.listen(443,'0.0.0.0', function(){
-  console.log('listening on *:8080');
+server.listen(443, function(){
+  console.log('listening on *:443');
 });
